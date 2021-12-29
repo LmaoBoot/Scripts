@@ -34,7 +34,10 @@ menu_toggle3.Center = false
 menu_toggle3.Visible = true
 
 -- Settings
-
+bind = "m" -- has to be lowercase
+player_bind = "n"
+range_up = "."
+range_down = ","
 
 -- Script
 
