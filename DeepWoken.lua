@@ -6,6 +6,7 @@ local player = game.Players.LocalPlayer
 local mouse = player:GetMouse()
 on = false
 player_on = false
+NPCs_on = false
 range = 500
 --SETUP Menu
 local menu_toggle = Drawing.new("Text")
@@ -24,10 +25,18 @@ menu_toggle2.Size = 20.0
 menu_toggle2.Outline = true
 menu_toggle2.Center = false
 menu_toggle2.Visible = true
+local menu_toggle4 = Drawing.new("Text")
+menu_toggle4.Text = "NPCs ESP: OFF"
+menu_toggle4.Color = Color3.new(255/255,255/255,255/255)
+menu_toggle4.Position = Vector2.new(80,940)
+menu_toggle4.Size = 20.0
+menu_toggle4.Outline = true
+menu_toggle4.Center = false
+menu_toggle4.Visible = true
 local menu_toggle3 = Drawing.new("Text")
 menu_toggle3.Text = "ESP Range: 500"
 menu_toggle3.Color = Color3.new(255/255,255/255,255/255)
-menu_toggle3.Position = Vector2.new(80,940)
+menu_toggle3.Position = Vector2.new(80,960)
 menu_toggle3.Size = 20.0
 menu_toggle3.Outline = true
 menu_toggle3.Center = false
@@ -36,6 +45,7 @@ menu_toggle3.Visible = true
 -- Settings
 bind = "m" -- has to be lowercase
 player_bind = "n"
+NPCs_bind = "l"
 range_up = "."
 range_down = ","
 
@@ -58,6 +68,15 @@ if key == player_bind then
     else
       player_on = true
       menu_toggle2.Text = "Player ESP: ON"
+    end
+end
+if key == NPCs_bind then
+    if NPCs_on then 
+      NPCs_on = false 
+      menu_toggle4.Text = "NPCs ESP: OFF"
+    else
+      NPCs_on = true
+      menu_toggle4.Text = "NPCs ESP: ON"
     end
 end
 if key == range_up then
@@ -100,9 +119,13 @@ function ESPText(part, color)
         name:Remove()
         tracer:Remove()
       end
-      if part ~= nil then
+      if part ~= nil  and part.Parent.Parent.Name ~= "NPCs" then
         name.Position = WTS(part, 3)
         name.Text = math.floor(part.Parent.Humanoid.Health) .. "/" .. part.Parent.Humanoid.MaxHealth
+      end
+      if part ~= nil  and part.Parent.Parent.Name == "NPCs" then
+        name.Position = WTS(part, 3)
+        name.Text = part.Parent.Name
       end
       local Vector, screen = workspace.CurrentCamera:WorldToViewportPoint(part.Position)
       mag = (part.Position - game.Players.LocalPlayer.Character.HumanoidRootPart.Position).magnitude
@@ -111,7 +134,12 @@ function ESPText(part, color)
         tracer.Visible = true
         tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
         tracer.To = Vector2.new(Vector.X, Vector.Y)
-      elseif screen and mag < range and player_on == true and not part.Parent:FindFirstChild("Target") then
+      elseif screen and mag < range and player_on == true and not part.Parent:FindFirstChild("Target") and not part.Parent.Parent.Name == "NPCs" then
+        name.Visible = true
+        tracer.Visible = true
+        tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
+        tracer.To = Vector2.new(Vector.X, Vector.Y)
+      elseif screen and mag < range and NPCs_on == true and part.Parent.Parent.Name == "NPCs" then
         name.Visible = true
         tracer.Visible = true
         tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
@@ -139,6 +167,15 @@ local entity = game.Workspace.Live:getChildren()
     end)
 end
 
+local NPCs = game.Workspace.NPCs:GetChildren()
+for i=1, #NPCs do
+    spawn(function()
+        if NPCs[i]:WaitForChild("HumanoidRootPart") then
+        ESPText(NPCs[i].HumanoidRootPart, Color3.new(255/255,100/255,255/255))
+        end
+    end)
+end
+
 game.Workspace.Live.ChildAdded:Connect(function(child)
     if child:WaitForChild("HumanoidRootPart") then
       if child:FindFirstChild("Target") then
@@ -148,4 +185,3 @@ game.Workspace.Live.ChildAdded:Connect(function(child)
       end
     end
 end)
-
