@@ -63,13 +63,13 @@ end
 if key == range_up then
       range = math.clamp(range + 25, 0, 2000)
       menu_toggle3.Text = "ESP Range: " .. range
-    end
 end
+
 if key == range_down then
       range = math.clamp(range - 25, 0, 2000)
       menu_toggle3.Text = "ESP Range: " .. range
-    end
 end
+
 end)
 function WTS(part, pos)
 local screen = workspace.CurrentCamera:WorldToViewportPoint(part.Position + Vector3.new(0, pos, 0))
@@ -148,5 +148,4 @@ game.Workspace.Live.ChildAdded:Connect(function(child)
       end
     end
 end)
-
 
