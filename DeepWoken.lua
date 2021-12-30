@@ -134,7 +134,7 @@ function ESPText(part, color)
         tracer.Visible = true
         tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
         tracer.To = Vector2.new(Vector.X, Vector.Y)
-      elseif screen and mag < range and player_on == true and not part.Parent:FindFirstChild("Target") and not part.Parent.Parent.Name == "NPCs" then
+      elseif screen and mag < range and player_on == true and part.Parent:FindFirstChild("Agility") and part.Parent.Parent.Name ~= "NPCs" then
         name.Visible = true
         tracer.Visible = true
         tracer.From = Vector2.new(camera.ViewportSize.X / 2, camera.ViewportSize.Y / 2)
@@ -153,35 +153,60 @@ function ESPText(part, color)
 end
 
 local entity = game.Workspace.Live:getChildren()
-  for i=1,#entity do
-      pcall(function()
-    if entity[i].HumanoidRootPart ~= game.Players.LocalPlayer.Character.HumanoidRootPart then
-      if entity[i]:findFirstChild("HumanoidRootPart") then
-        if entity[i]:FindFirstChild("Target") then
-          ESPText(entity[i].HumanoidRootPart, Color3.new(255/255,100/255,100/255))
-        else
-          ESPText(entity[i].HumanoidRootPart, Color3.new(100/255,100/255,255/255))
-      end
-    end
-    end
+for i=1,#entity do
+    pcall(function()
+        if entity[i].HumanoidRootPart ~= game.Players.LocalPlayer.Character.HumanoidRootPart then
+            if entity[i]:findFirstChild("HumanoidRootPart") then
+                if entity[i]:FindFirstChild("Agility") then
+                    ESPText(entity[i].HumanoidRootPart, Color3.new(100/255,100/255,255/255))
+                else
+                    ESPText(entity[i].HumanoidRootPart, Color3.new(255/255,100/255,100/255))
+                end
+            else
+                entity[i].childAdded:Connect(function()
+                    if entity[i]:WaitForChild("HumanoidRootPart") then
+                        if entity[i]:FindFirstChild("Agility") then
+                            ESPText(entity[i].HumanoidRootPart, Color3.new(100/255,100/255,255/255))
+                        else
+                            ESPText(entity[i].HumanoidRootPart, Color3.new(255/255,100/255,100/255))
+                        end
+                    end
+                end)
+            end
+        end
     end)
 end
 
 local NPCs = game.Workspace.NPCs:GetChildren()
 for i=1, #NPCs do
-    spawn(function()
-        if NPCs[i]:WaitForChild("HumanoidRootPart") then
+  if NPCs[i]:FindFirstChild("HumanoidRootPart") then
+    ESPText(NPCs[i].HumanoidRootPart, Color3.new(255/255,100/255,255/255))
+  else
+    NPCs[i].ChildAdded:Connect(function(child)
+      if NPCs[i]:WaitForChild("HumanoidRootPart") then
         ESPText(NPCs[i].HumanoidRootPart, Color3.new(255/255,100/255,255/255))
-        end
+      end
     end)
+  end
 end
 
 game.Workspace.Live.ChildAdded:Connect(function(child)
-    if child:WaitForChild("HumanoidRootPart") then
-      if child:FindFirstChild("Target") then
-        ESPText(child.HumanoidRootPart, Color3.new(255/255,100/255,100/255))
-      else
-        ESPText(child.HumanoidRootPart, Color3.new(100/255,100/255,255/255))
-      end
+    if child:FindForChild("HumanoidRootPart") then
+        wait(0.5)
+        if child:FindFirstChild("Agility") then
+            ESPText(child.HumanoidRootPart, Color3.new(100/255,100/255,255/255))
+        else
+            ESPText(child.HumanoidRootPart, Color3.new(255/255,100/255,100/255))
+        end
+    else
+        child.ChildAdded:Connect(function()
+            if child:WaitForChild("HumanoidRootPart") then
+                if child:FindFirstChild("Agility") then
+                    ESPText(child.HumanoidRootPart, Color3.new(100/255,100/255,255/255))
+                else
+                    ESPText(child.HumanoidRootPart, Color3.new(255/255,100/255,100/255))
+                end
+            end
+        end)
     end
 end)
